@@ -13,6 +13,8 @@ Please cite the following papers if you use these scripts:
 
 # Examples
 * 'main_example_cei.m': run an example of CEI computations for a given signal provided in the folder './data/'
+Below is an example of output of a short-term CEI and the comparison with the Short-Term Fourier Transform
+![Example](https://github.com/EtienneTho/cei/blob/main/short_term_CEI.png)
 
 # Dependences
 These scripts are using libraries embedded in the subfoldeer ./lib/ in particular the Empirical Modes Decomposition library developed by Patrick Flandrin and Gabriel Rilling: https://perso.ens-lyon.fr/patrick.flandrin/emd.html

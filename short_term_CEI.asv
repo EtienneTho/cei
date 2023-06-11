@@ -1,0 +1,35 @@
+% Etienne Thoret 2023 (c)
+%
+% a function that computes a short term version of cascaded envelope interpolation (CEI) 
+%
+% If you use this script please cite the following paper
+% Thoret, E., Ystad, S., Kronland-Martinet, R. (2023) Hearing as adaptive cascaded envelope interpolation
+% Communications Biology
+%
+% inputs
+%   signal : signal to decompose
+%   wdw: window size
+%   hopsize: wdw - overlap
+%   nbSiftingIterations: number of sifting iterations, takes 1 for CEI
+%   nbIMFs: number of IMFs
+%   fs_initial: sample rate of the signal
+%
+% outputs
+%   stCEI: 2d matrix with short term cei
+%   st_fourier: 2d matrix with short term fourier spectrum
+
+function [stCEI, st_fourier] = short_term_CEI(signal, wdw, hopsize, nbSiftingIterations, nbIMFs, fs_initial)
+    
+    x = signal ;
+    nsegments = floor((length(x)-wdw) / hopsize) ;
+    stCEI = [] ;
+    st_fourier = [] ;
+    for i = 1:nsegments
+        segment = x((i-1)*hopsize+1:(i-1)*hopsize+1+wdw) ; % .* chebwin(wdw+1) ;
+        IMFs_EMD_fix = emdc_fix([],segment, nbSiftingIterations, nbIMFs) ;
+        pow_ = pow2db(sum(abs(pspectrum(IMFs_EMD_fix(:,1:end)',fs_initial)),2)) ;    
+        stCEI = [stCEI (pow_)] ;
+        pow_fourier = pow2db(abs(pspectrum(segment,fs_initial))) ;    
+        st_fourier = [st_fourier (pow_fourier)] ;    
+    end
+end

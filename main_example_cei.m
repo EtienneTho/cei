@@ -1,0 +1,74 @@
+% Etienne Thoret 2023 (c)
+%
+% Exemple of Cascaded Envelope Interpolation (CEI)
+%
+% If you use this script please cite the following paper
+% Thoret, E., Ystad, S., Kronland-Martinet, R. (2023) Hearing as adaptive cascaded envelope interpolation
+% Communications Biology
+%
+
+close all ;
+clearvars;
+addpath(genpath('./lib/'));
+
+%% pre processing
+filename = './data/voice_lowpass_filtered_300Hz.wav' ;
+fs_target = 16000 ; % sample rate
+[signal,fs_initial] = audioread(filename) ; % load sound
+signal = signal ./ 1.01 / max(abs(signal)) ; % normalize sound
+signal = resample(signal,fs_target,fs_initial) ; % resample to sample rate
+fs_initial = fs_target ;
+
+%% sifting parameter
+nbIMFs = 6 ; % number of modes
+nbSiftingIterations = 1 ; % number of sifting iterations, 1 for CEI
+
+%% compute CEI
+wdw = 564*4 ; % window size
+hopsize = wdw/16 ; % hop size
+% compute CEI
+    cei = CEI(signal, nbSiftingIterations, nbIMFs) ; 
+% compute short term transforms
+    [stCEI, stFourier] = short_term_CEI(signal, wdw, hopsize, nbSiftingIterations, nbIMFs, fs_initial) ; 
+
+%% display CEI
+fig = figure(1);
+%h = axes(fig,'visible','off'); 
+tiledlayout(nbIMFs+1,1);
+for i = 1:nbIMFs+1
+    nexttile
+    plot(cei(i,:))
+end
+
+%% display short term CEI transform and short term fourier transform
+fig = figure(2);
+h = axes(fig,'visible','off'); 
+tiledlayout(2,1);
+limSup = 2000 ; % in hz
+nexttile
+colormap('parula')
+imagesc(flipud(stCEI(1:floor(limSup/fs_target*length(stCEI)),:)),[-80 0]) ;
+title('Short-Term Cascaded Envelope Interpolation')    
+limSupFrequency = floor(limSup/fs_target*length(stCEI)) ;
+xlabel('Time (s)')
+ylabel('Frequency (Hz)')
+duration = length(signal)/16000 ;
+frequency_sample = length(stCEI(:,1)) ;
+xticks(floor([0 1 2 3] * length(stCEI(1,:)) / duration )+1)
+xticklabels({'0', '1', '2', '3'})
+yticks(floor([100 fs_target/4 fs_target/2 ] / (fs_target/2) * limSupFrequency) )
+yticklabels({fs_target/2, fs_target/4 0 })
+
+nexttile
+imagesc(flipud(stFourier(1:floor(limSup/fs_target*length(stFourier)),:)),[-80 0]) ;
+title('Short-Term Fourier Transform')    
+xlabel('Time (s)')
+ylabel('Frequency (Hz)')
+xticks(floor([0 1 2 3] * length(stFourier(1,:)) / duration )+1)
+xticklabels({'0', '1', '2', '3'})    
+yticks(floor([100 fs_target/4 fs_target/2 ] / (fs_target/2) * limSupFrequency) )
+yticklabels({fs_target/2, fs_target/4 0 })    
+cb = colorbar;
+cb.Layout.Tile = 'east';
+
+saveas(gca,'./short_term_CEI.png','png')

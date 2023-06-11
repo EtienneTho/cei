@@ -13,7 +13,8 @@ Please cite the following papers if you use these scripts:
 
 # Examples
 * 'main_example_cei.m': run an example of CEI computations for a given signal provided in the folder './data/'
-Below is an example of output of a short-term CEI and the comparison with the Short-Term Fourier Transform
+Below is an example of output of a short-term CEI and the comparison with the Short-Term Fourier Transform in the case of the missing fundamental. The CEI transform reconstruct the missing spectrum.
+
 ![Example](https://github.com/EtienneTho/cei/blob/main/short_term_CEI.png)
 
 # Dependences
